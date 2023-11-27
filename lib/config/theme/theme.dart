@@ -5,5 +5,9 @@ class ThemeCard {
   static ThemeData initialThemeData = ThemeData(
     fontFamily: "Poppins",
     colorSchemeSeed: BrandColor.primaryColor,
+    appBarTheme: const AppBarTheme(
+      // backgroundColor: BrandColor.transparent,
+      elevation: 0,
+    ),
   );
 }

@@ -1,3 +1,4 @@
+import 'package:cardly/config/theme/color.dart';
 import 'package:flutter/material.dart';
 
 class DynamicInputWidget extends StatelessWidget {
@@ -9,7 +10,7 @@ class DynamicInputWidget extends StatelessWidget {
       required this.obscureText,
       required this.focusNode,
       this.validator,
-     this.suffIcon,
+      this.suffIcon,
       required this.labelText,
       required this.textInputAction});
 
@@ -26,7 +27,7 @@ class DynamicInputWidget extends StatelessWidget {
   // Validator function
   final String? Function(String?)? validator;
   // Prefix icon for input form
-  final Icon ? suffIcon;
+  final Icon? suffIcon;
   // label for input form
   final String labelText;
   // The keyword action to display
@@ -37,6 +38,17 @@ class DynamicInputWidget extends StatelessWidget {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(
+            color: BrandColor.form,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
+        errorBorder: const OutlineInputBorder(
+          // Make border edge circular
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        ),
         border: const OutlineInputBorder(
           // Make border edge circular
           borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -72,7 +84,7 @@ class AuthValidators {
   String? emailValidator(String? val) {
     final String email = val as String;
 
-    RegExp emailReg = RegExp(email);
+    // RegExp emailReg = RegExp(email);
 
     bool containsSpecialCharacters(String str) {
       final pattern = RegExp(r'[!^&%#()$*]');
@@ -151,5 +163,3 @@ class AuthValidators {
     return null;
   }
 }
-
-

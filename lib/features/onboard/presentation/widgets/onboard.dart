@@ -24,8 +24,8 @@ class _OnboardScreenControllerState extends State<OnboardScreenController> {
         PageView(
           controller: _controller,
           children: [
-            const OnBoard2(),
             const OnBoardScreen1(),
+            const OnBoard2(),
             const OnBoard3(),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 15),

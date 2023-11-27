@@ -15,5 +15,6 @@ class BrandColor {
   static const Color grey = Color(0xff434b47);
   static const Color black = Color(0xff151515);
   static const Color white = Color(0xffffffff);
-
+  static const Color transparent = Colors.transparent;
+  static const Color form = Color(0xffE2E8E6);
 }
