@@ -1,36 +1,73 @@
 import 'package:cardly/config/devtool/dev_tool.dart';
 import 'package:cardly/features/authentication/data/datasources/remote/auth_repo.dart';
+import 'package:cardly/features/authentication/domain/models/token.dart';
+import 'package:cardly/features/authentication/domain/models/token_manager.dart';
 import 'package:cardly/features/authentication/domain/models/user.dart';
 import 'package:cardly/utils/auth_result.dart';
 import 'package:cardly/utils/constant/api.dart';
 import 'package:cardly/utils/extensions/dio_no_internet.dart';
+import 'package:cardly/utils/interceptor/token_interceptors.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-
-import '../../domain/models/token.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final Dio _dio;
+  final Dio dio;
+  final Ref ref;
+  final TokenManager tokenManager;
 
   // BaseOptions instance
 
-  AuthRepositoryImpl({required Dio dio}) : _dio = dio;
+  AuthRepositoryImpl(
+      {required this.dio, required this.ref, required this.tokenManager}) {
+    dio.interceptors
+        .add(TokenInterceptors(ref: ref, dio: dio, tokenManager: tokenManager));
+  }
+
+  Future<void> listAllUser() async {
+    try {
+      final request = await dio.get(ApiKonstant.allUser);
+      if (request.statusCode == 200) {
+        request.data.toString().log();
+      }
+    } on DioException catch (e) {
+      e.log();
+    }
+  }
 
   @override
   Future<Either<Failure, Success>> login(UserModel userModel) async {
     try {
       final response =
-          await _dio.post(ApiKonstant.login, data: userModel.toMap());
+          await dio.post(ApiKonstant.login, data: userModel.toMap());
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = response.data;
-        data.log();
-        
-        return right(
-          Success<Map<String, dynamic>>(data: data),
-        );
-        
+        final Map<String, dynamic> tokenData = response.data;
+        // data.log();
+        // final tokenData = data as Map<String, String>;
+
+        // Save token to shared preference
+        final Token createdToken = Token.fromMap(tokenData);
+        try {
+          // tokenStorageImpl.save(createdToken);
+          tokenManager.save(createdToken);
+          "I have saved the token Already".log();
+          return Right(
+            Success(data: tokenData),
+          );
+        } catch (e) {
+          debugPrint("Error while saving: $e");
+          return Left(
+            Failure(
+              message: "Error while saving token: ${e.toString()}",
+            ),
+          );
+        }
+
+        // return right(
+        //   Success<Map<String, dynamic>>(data: data),
+        // );
       } else if (response.statusCode == 401) {
         debugPrint("I passed here 🚀🚀🚀");
         return Left(Failure(message: response.data));
@@ -64,7 +101,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Implement registration logic here
       "Passing through here".log();
       final response =
-          await _dio.post(ApiKonstant.register, data: userModel.toMap());
+          await dio.post(ApiKonstant.register, data: userModel.toMap());
       if (response.statusCode == 201) {
         final Map<String, dynamic> data = response.data;
         data.log();
@@ -132,7 +169,7 @@ class AuthRepositoryImpl implements AuthRepository {
       };
 
       final response =
-          await _dio.post(ApiKonstant.refresh, data: refreshParameter);
+          await dio.post(ApiKonstant.refresh, data: refreshParameter);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = response.data;
@@ -171,6 +208,5 @@ class AuthRepositoryImpl implements AuthRepository {
       default:
         return "Request failed with status code $statusCode: $message";
     }
-
   }
 }

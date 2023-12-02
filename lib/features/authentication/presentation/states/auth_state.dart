@@ -1,11 +1,13 @@
 import 'package:cardly/features/authentication/application/service/auth_service.dart';
 import 'package:cardly/features/authentication/domain/models/user.dart';
+import 'package:cardly/main.dart';
 import 'package:cardly/utils/auth_result.dart';
 import 'package:cardly/utils/component/loading/loading_screen.dart';
 import 'package:cardly/utils/constant/animation.dart';
 import 'package:cardly/utils/constant/message_dialogue.dart';
 import 'package:flutter/foundation.dart' show immutable, debugPrint;
-import 'package:flutter/material.dart' show Navigator, BuildContext;
+import 'package:flutter/material.dart'
+    show BuildContext, MaterialPageRoute, Navigator;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -76,7 +78,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
           link: AnimationConstant.errorPath,
         );
 
-        Future.delayed(const Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 2), () {
           Navigator.of(context).pop();
         });
 
@@ -95,9 +97,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
           link: AnimationConstant.successPath,
         );
 
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.of(context).pop();
-        });
+        Future.delayed(const Duration(seconds: 2), () {});
         return;
       },
     );
@@ -125,7 +125,14 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         Future.delayed(
           const Duration(seconds: 3),
           () {
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const DashBoardScreen();
+                },
+              ),
+            );
           },
         );
 
@@ -146,8 +153,17 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         Future.delayed(
           const Duration(seconds: 3),
           () {
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const DashBoardScreen();
+                },
+              ),
+            );
           },
+        ).then(
+          (_) {},
         );
 
         // GoRouter.of(context).replace("login");

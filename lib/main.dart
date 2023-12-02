@@ -1,5 +1,6 @@
 import 'package:cardly/config/devtool/dev_tool.dart';
 import 'package:cardly/config/theme/theme.dart';
+import 'package:cardly/features/authentication/data/repository/auth_repository_impl.dart';
 import 'package:cardly/features/authentication/presentation/screen/login_screen.dart';
 import 'package:cardly/features/authentication/presentation/screen/registration_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ import 'utils/component/loading/loading_screen.dart';
 void main() async {
   runApp(
     const ProviderScope(
-      child: App(),
+      child: AppEntry(),
     ),
   );
 }
@@ -31,42 +32,43 @@ class AppEntry extends StatelessWidget {
 
           final route = ref.watch(goRouterConfigProvider);
           final isLoggedIn = ref.watch(isLoggedInProvider);
+          isLoggedIn.log();
 
-          ref.listen<bool>(
-            isLoadingProvider,
-            (_, isLoading) {
-              if (isLoading) {
-                LoadingScreen.instance().show(
-                  context: context,
-                );
-              } else {
-                LoadingScreen.instance().hide();
-              }
-            },
-          );
+          // ref.listen<bool>(
+          //   isLoadingProvider,
+          //   (_, isLoading) {
+          //     if (isLoading) {
+          //       LoadingScreen.instance().show(
+          //         context: context,
+          //       );
+          //     } else {
+          //       LoadingScreen.instance().hide();
+          //     }
+          //   },
+          // );
 
-          isLoggedIn.when(
-            data: (loggedIn) {
-              if (loggedIn) {
-                route.goNamed("dashboard");
-              } else {
-                route.goNamed("login");
-              }
-            },
-            error: (error, stackTrace) {
-              error.toString().log();
-            },
-            loading: () {
-              "loading".log();
-              return const LoaderScreen();
-            },
-          );
+          // isLoggedIn.when(
+          //   data: (loggedIn) {
+          //     if (loggedIn) {
+          //       route.goNamed("dashboard");
+          //     } else {
+          //       route.goNamed("login");
+          //     }
+          //   },
+          //   error: (error, stackTrace) {
+          //     error.toString().log();
+          //   },
+          //   loading: () {
+          //     "loading".log();
+          //     return const LoaderScreen();
+          //   },
+          // );
 
-          return const Scaffold(
-            body: Center(
-              child: Text("Loading"),
-            ),
-          );
+          if (isLoggedIn) {
+            return const DashBoardScreen();
+          } else {
+            return const RegistrationScreen();
+          }
         },
       ),
     );
@@ -93,22 +95,22 @@ class App extends ConsumerWidget {
     ref.watch(isLoggedInProvider).log();
     final route = ref.watch(goRouterConfigProvider);
 
-    ref.watch(isLoggedInProvider).when(
-      data: (loggedIn) {
-        if (loggedIn) {
-          route.goNamed("dashboard");
-        } else {
-          route.goNamed("login");
-        }
-      },
-      error: (error, stackTrace) {
-        error.toString().log();
-      },
-      loading: () {
-        "loading".log();
-        return const LoaderScreen();
-      },
-    );
+    // ref.watch(isLoggedInProvider).when(
+    //   data: (loggedIn) {
+    //     if (loggedIn) {
+    //       route.goNamed("dashboard");
+    //     } else {
+    //       route.goNamed("login");
+    //     }
+    //   },
+    //   error: (error, stackTrace) {
+    //     error.toString().log();
+    //   },
+    //   loading: () {
+    //     "loading".log();
+    //     return const LoaderScreen();
+    //   },
+    // );
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeCard.initialThemeData,
@@ -127,8 +129,20 @@ class DashBoardScreen extends StatelessWidget {
         title: const Text("DashBoard"),
         centerTitle: true,
       ),
-      body: const Center(
-        child: Text("DashBoard"),
+      body: Consumer(
+        builder: (context, ref, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  await ref.watch(authRepoImplProvider).listAllUser();
+                },
+                child: const Text("Get All User"),
+              )
+            ],
+          );
+        },
       ),
     );
   }

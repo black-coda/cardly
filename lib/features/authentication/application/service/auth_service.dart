@@ -2,6 +2,7 @@ import 'package:cardly/config/devtool/dev_tool.dart';
 import 'package:cardly/features/authentication/data/repository/auth_repository_impl.dart';
 import 'package:cardly/features/authentication/data/repository/token_storage_impl.dart';
 import 'package:cardly/features/authentication/domain/models/token.dart';
+import 'package:cardly/features/authentication/domain/models/token_manager.dart';
 import 'package:cardly/features/authentication/domain/models/user.dart';
 import 'package:cardly/utils/auth_result.dart';
 import 'package:dartz/dartz.dart';
@@ -9,11 +10,12 @@ import 'package:flutter/foundation.dart' show debugPrint;
 
 class AuthService {
   final AuthRepositoryImpl authRepositoryImpl;
-  final TokenStorageImpl tokenStorageImpl;
+ 
+  final TokenManager tokenManager;
 
   AuthService({
     required this.authRepositoryImpl,
-    required this.tokenStorageImpl,
+    required this.tokenManager,
   });
 
 
@@ -34,7 +36,8 @@ class AuthService {
             // Save token to shared preference
             final Token createdToken = Token.fromMap(tokenData);
             try {
-              tokenStorageImpl.save(createdToken);
+              // tokenStorageImpl.save(createdToken);
+              tokenManager.save(createdToken);
               "I have saved the token Already".log();
               return Right(
                 Success(data: createdToken),

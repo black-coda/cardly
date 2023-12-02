@@ -3,6 +3,7 @@ import 'package:cardly/config/router/route.dart';
 import 'package:cardly/features/authentication/application/service/auth_service.dart';
 import 'package:cardly/features/authentication/data/repository/auth_repository_impl.dart';
 import 'package:cardly/features/authentication/data/repository/token_storage_impl.dart';
+import 'package:cardly/features/authentication/domain/models/token_manager.dart';
 import 'package:cardly/features/authentication/presentation/states/auth_state.dart';
 import 'package:cardly/utils/auth_result.dart';
 import 'package:cardly/utils/constant/api.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage();
@@ -31,7 +33,8 @@ final dioProvider = Provider<Dio>(
 final authRepoImplProvider = Provider<AuthRepositoryImpl>(
   (ref) {
     final dio = ref.watch(dioProvider);
-    return AuthRepositoryImpl(dio: dio);
+    final tokenManger = ref.watch(tokenManagerProvider);
+    return AuthRepositoryImpl(dio: dio, ref: ref, tokenManager: tokenManger);
   },
 );
 
@@ -47,26 +50,16 @@ final tokenStorageProvider = Provider<TokenStorageImpl>((ref) {
 
 final authServiceProvider = Provider<AuthService>((ref) {
   final authRepo = ref.watch(authRepoImplProvider);
-  final tokenStorage = ref.watch(tokenStorageProvider);
+  final tokenManager = ref.watch(tokenManagerProvider);
   return AuthService(
     authRepositoryImpl: authRepo,
-    tokenStorageImpl: tokenStorage,
+    tokenManager: tokenManager,
   );
 });
 
 final authProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
   final authService = ref.watch(authServiceProvider);
   return AuthStateNotifier(authService: authService);
-});
-
-final isLoggedInProvider = FutureProvider<bool>((ref) async {
-  final authentication = ref.watch(authProvider);
-  final tokenStorage = ref.watch(tokenStorageProvider);
-
-  final c = await tokenStorage.isTokenValid();
-  debugPrint("passing here 🗼 $c");
-
-  return authentication.result == const Success();
 });
 
 final isLoadingProvider = Provider<bool>((ref) {
@@ -76,4 +69,25 @@ final isLoadingProvider = Provider<bool>((ref) {
 
 final goRouterConfigProvider = Provider<GoRouter>((ref) {
   return RouteManager.router;
+});
+
+final tokenManagerProvider = Provider<TokenManager>((ref) {
+  final dio = ref.watch(dioProvider);
+  final secureStorage = ref.watch(secureStorageProvider);
+  return TokenManager(dio: dio, secureStorage: secureStorage);
+});
+
+final isLoggedInProvider = Provider<bool>((ref) {
+  // final authentication = ref.watch(authProvider);
+  final token = ref.watch(tokenManagerProvider).token?.refreshToken;
+  token?.log();
+  if (token != null) {
+    bool hasExpired = JwtDecoder.isExpired(token);
+    return !hasExpired;
+  } else {
+    return false;
+  }
+
+  // final c = await tokenStorage.isTokenValid();
+  // debugPrint("passing here 🗼 $c");
 });

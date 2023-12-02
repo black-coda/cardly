@@ -6,6 +6,7 @@ import 'package:cardly/config/theme/color.dart';
 import 'package:cardly/features/authentication/domain/models/user.dart';
 import 'package:cardly/features/authentication/presentation/controllers/controllers.dart';
 import 'package:cardly/features/authentication/presentation/widgets/custom_button.dart';
+import 'package:cardly/main.dart';
 import 'package:cardly/utils/forms/dynamic_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -147,6 +148,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         CustomButton(
                           text: "Login",
                           onPressed: () async {
+                            final router = ref.watch(goRouterConfigProvider);
                             if (_formKey.currentState!.validate()) {
                               final email = emailController.text;
                               final password = passwordController.text;
@@ -155,6 +157,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               await ref
                                   .read(authProvider.notifier)
                                   .login(userModel, context);
+
+                              
                             }
                           },
                         ),

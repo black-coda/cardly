@@ -41,16 +41,16 @@ class TokenStorageImpl implements TokenStorage {
   Future<Token?> read() async {
     try {
       if (_token != null) {
-        return _token!;
+        return _token;
       }
 
       final storedToken = await secureStorage.read(key: _tokensKey);
       if (storedToken != null) {
         _token = Token.fromJson(storedToken);
-        return _token!;
+        return _token;
       }
 
-      // If the token is not found, consider throwing an exception or providing a default token.
+      // If the token is not found,
       return null;
     } catch (e) {
       // Handle potential exceptions during token reading.
@@ -159,5 +159,11 @@ class TokenStorageImpl implements TokenStorage {
       debugPrint("Error activating refresh token: $e");
       return null;
     }
+  }
+  
+  @override
+  Future<Token?> refresh() {
+    // TODO: implement refresh
+    throw UnimplementedError();
   }
 }
