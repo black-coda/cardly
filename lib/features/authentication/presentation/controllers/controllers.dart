@@ -80,7 +80,7 @@ final tokenManagerProvider = Provider<TokenManager>((ref) {
 final isLoggedInProvider = Provider<bool>((ref) {
   // final authentication = ref.watch(authProvider);
   final token = ref.watch(tokenManagerProvider).token?.refreshToken;
-  token?.log();
+  "this is the $token".log();
   if (token != null) {
     bool hasExpired = JwtDecoder.isExpired(token);
     return !hasExpired;

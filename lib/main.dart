@@ -5,6 +5,7 @@ import 'package:cardly/features/authentication/presentation/screen/login_screen.
 import 'package:cardly/features/authentication/presentation/screen/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'features/authentication/presentation/controllers/controllers.dart';
 import 'utils/component/loading/loading_screen.dart';
@@ -27,13 +28,8 @@ class AppEntry extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeCard.initialThemeData,
       home: Consumer(
-        builder: (context, ref, child) {
-          //* Install loading screen whenever state is Loading()
-
-          final route = ref.watch(goRouterConfigProvider);
-          final isLoggedIn = ref.watch(isLoggedInProvider);
-          isLoggedIn.log();
-
+        builder: (_, ref, child) {
+          //* Installs loading screen whenever state is Loading()
           // ref.listen<bool>(
           //   isLoadingProvider,
           //   (_, isLoading) {
@@ -47,22 +43,9 @@ class AppEntry extends StatelessWidget {
           //   },
           // );
 
-          // isLoggedIn.when(
-          //   data: (loggedIn) {
-          //     if (loggedIn) {
-          //       route.goNamed("dashboard");
-          //     } else {
-          //       route.goNamed("login");
-          //     }
-          //   },
-          //   error: (error, stackTrace) {
-          //     error.toString().log();
-          //   },
-          //   loading: () {
-          //     "loading".log();
-          //     return const LoaderScreen();
-          //   },
-          // );
+          final route = ref.watch(goRouterConfigProvider);
+          final isLoggedIn = ref.watch(isLoggedInProvider);
+          isLoggedIn.log();
 
           if (isLoggedIn) {
             return const DashBoardScreen();
@@ -139,7 +122,15 @@ class DashBoardScreen extends StatelessWidget {
                   await ref.watch(authRepoImplProvider).listAllUser();
                 },
                 child: const Text("Get All User"),
-              )
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ));
+                },
+                child: const Text("Login"),
+              ),
             ],
           );
         },

@@ -104,6 +104,7 @@ class AuthRepositoryImpl implements AuthRepository {
           await dio.post(ApiKonstant.register, data: userModel.toMap());
       if (response.statusCode == 201) {
         final Map<String, dynamic> data = response.data;
+        await tokenManager.destroy().then((value) => "destroyed token ⚡");
         data.log();
         return Right(
           Success(data: data),

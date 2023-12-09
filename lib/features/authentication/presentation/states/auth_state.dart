@@ -97,7 +97,13 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
           link: AnimationConstant.successPath,
         );
 
-        Future.delayed(const Duration(seconds: 2), () {});
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const DashBoardScreen(),
+          ));
+        });
+
         return;
       },
     );
@@ -122,19 +128,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
             message: failure.message,
             link: AnimationConstant.errorPath);
 
-        Future.delayed(
-          const Duration(seconds: 3),
-          () {
-            // Navigator.of(context).pop();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (BuildContext context) {
-                  return const DashBoardScreen();
-                },
-              ),
-            );
-          },
-        );
+        Navigator.of(context).pop();
 
         return;
       },
