@@ -2,8 +2,10 @@ import 'package:cardly/config/devtool/dev_tool.dart';
 import 'package:cardly/features/authentication/domain/models/token.dart';
 import 'package:cardly/features/authentication/domain/models/token_manager.dart';
 import 'package:cardly/features/authentication/presentation/controllers/controllers.dart';
+import 'package:cardly/features/authentication/presentation/screen/login_screen.dart';
 import 'package:cardly/utils/constant/api.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -51,8 +53,7 @@ class TokenInterceptors extends Interceptor {
     ('ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}  and ${err.requestOptions.headers}')
         .log();
 
-
-     // Check if the error is due to an expired token
+    // Check if the error is due to an expired token
     if (err.requestOptions.path != ApiKonstant.register &&
         err.requestOptions.headers.containsKey("Authorization") &&
         err.response?.statusCode == 401) {
@@ -80,6 +81,7 @@ class TokenInterceptors extends Interceptor {
         } else {
           // Error refreshing token
           ('Error refreshing token').log();
+
           _redirectUserToLoginScreen();
         }
 
@@ -87,72 +89,13 @@ class TokenInterceptors extends Interceptor {
       }
     }
 
-    // if (err.requestOptions.path != ApiKonstant.register &&
-    //     err.requestOptions.headers.containsKey("Authorization") &&
-    //     err.response?.statusCode == 401) {
-    //   final refreshTokenReq = await tokenManager.refresh();
-    //   if (refreshTokenReq != null) {
-    //     // Retry the original request with the new token
-    //     err.requestOptions.headers["Authorization"] =
-    //         refreshTokenReq.accessToken;
-    //     final response = await dio.request(
-    //       err.requestOptions.path,
-    //       options: err.requestOptions.data,
-    //     );
-    //     // Continue with the refreshed token
-    //     handler.resolve(Response(
-    //       requestOptions: err.requestOptions,
-    //       data: response.data,
-    //       headers: response.headers,
-    //       statusCode: response.statusCode,
-    //       statusMessage: response.statusMessage,
-    //     ));
-    //   } else {
-    //     // Error refreshing token
-    //     ('Error refreshing token').log();
-    //     _redirectUserToLoginScreen();
-    //   }
-    // }
-
-    // int refreshAttempts = 0;
-
-    // while (refreshAttempts < 3) {
-    //   if (err.requestOptions.path != ApiKonstant.register) {
-    //     if (err.requestOptions.headers.containsKey("Authorization") &&
-    //         err.response?.statusCode == 401) {
-    //       final getTokenCall = await getTokens();
-    //       if (getTokenCall != null) {
-    //         bool hasExpired = JwtDecoder.isExpired(getTokenCall.accessToken);
-    //         hasExpired.toString().log();
-    //         final refreshTokenReq = await tokenManager.refresh();
-    //         if (refreshTokenReq != null) {
-    //           err.requestOptions.headers["Authorization"] =
-    //               refreshTokenReq.accessToken;
-    //         } else {
-    //           ('Error refreshing token. Attempt $refreshAttempts').log();
-    //           refreshAttempts++;
-    //         }
-    //       } else {
-    //         //* If the token is null, redirect the user to login page, meaning there is no access / refresh token
-    //         _redirectUserToLoginScreen();
-    //       }
-    //     }
-    //   }
-
-    //   if (refreshAttempts == 2) {
-    //     // Access the GoRouter instance from the provider
-    //     _redirectUserToLoginScreen();
-    //   }
-    // }
+ 
 
     super.onError(err, handler);
   }
 
   void _redirectUserToLoginScreen() {
-    final router = ref.watch(goRouterConfigProvider);
-
-    // Push the user to the login screen
-    router.pushReplacementNamed("login");
+    ref.watch(goRouterConfigProvider).push("/login");
   }
 
   Future<Token?> getTokens() async {

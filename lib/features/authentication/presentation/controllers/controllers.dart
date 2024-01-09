@@ -9,6 +9,7 @@ import 'package:cardly/utils/auth_result.dart';
 import 'package:cardly/utils/constant/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -91,3 +92,30 @@ final isLoggedInProvider = Provider<bool>((ref) {
   // final c = await tokenStorage.isTokenValid();
   // debugPrint("passing here 🗼 $c");
 });
+
+final isAuthenticatedProvider = FutureProvider(
+  (ref) async {
+    final tokenManager = ref.watch(tokenManagerProvider);
+    final token = await tokenManager.read();
+    if (token != null) {
+      final accessToken = token.accessToken;
+      debugPrint("accessToken: $accessToken");
+      final refreshToken = token.refreshToken;
+      debugPrint("refreshToken: $refreshToken");
+      bool hasAccessTokenExpired = JwtDecoder.isExpired(accessToken);
+      if (hasAccessTokenExpired) {
+        bool hasRefreshTokenExpired = JwtDecoder.isExpired(refreshToken);
+        if (hasRefreshTokenExpired) {
+          return false;
+        } else {
+          await tokenManager.refresh();
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return false;
+    }
+  },
+);

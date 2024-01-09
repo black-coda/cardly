@@ -82,8 +82,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     placeholder: (context, url) => const SizedBox(
                       height: 50,
                       width: 50,
-                      child: CircularProgressIndicator(
-                        color: BrandColor.gold,
+                      child: LinearProgressIndicator(
+                        color: BrandColor.primaryColor,
                       ),
                     ),
                     errorWidget: (context, url, error) =>
@@ -157,8 +157,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               await ref
                                   .read(authProvider.notifier)
                                   .login(userModel, context);
-
-                              
                             }
                           },
                         ),

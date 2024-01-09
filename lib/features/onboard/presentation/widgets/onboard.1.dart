@@ -4,6 +4,7 @@
 import 'package:cardly/config/theme/color.dart';
 import 'package:cardly/features/authentication/presentation/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// The `OnBoardScreen1` class is a stateless widget representing the first screen of the onboarding flow.
 class OnBoardScreen1 extends StatelessWidget {
@@ -14,23 +15,6 @@ class OnBoardScreen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: BrandColor.white,
-        elevation: 0,
-        actions: [
-          // Skip button in the app bar
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              "Skip",
-              style: TextStyle(
-                color: BrandColor.grey,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           Padding(
@@ -41,7 +25,7 @@ class OnBoardScreen1 extends StatelessWidget {
               children: [
                 // Circular image container
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(0.0),
                   decoration: BoxDecoration(
                     color: BrandColor.primaryColorShade1.withOpacity(0.5),
                     shape: BoxShape.circle,
@@ -50,33 +34,32 @@ class OnBoardScreen1 extends StatelessWidget {
                 ),
                 const SizedBox(height: 56),
                 // Headline text
-                const Text(
-                  "All your accounts\nIn one place",
-                  style: TextStyle(
-                    color: BrandColor.black,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 20,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-                const SizedBox(height: 32),
-                // "Create account" button
-                const CustomButton(
-                  color: BrandColor.primaryColorShade3,
-                  text: "Create account",
-                ),
-                const SizedBox(height: 32),
-                // "Forgot password" link
-                Center(
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Forgot password",
-                      style: TextStyle(color: BrandColor.primaryColor),
+                Column(
+                  children: [
+                    Text(
+                      "All your accounts\nIn one place",
+                      style: Theme.of(context).textTheme.titleLarge,
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                )
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                    const SizedBox(height: 32),
+                    // "Create account" button
+                    const CustomButton(
+                      color: BrandColor.primaryColorShade3,
+                      text: "Create account",
+                    ),
+                    const SizedBox(height: 16),
+                    CustomButton(
+                      color: BrandColor.primaryColorShade3,
+                      text: "Sign in",
+                      onPressed: () {
+                        context.go('/login');
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+                // "Forgot password" link
               ],
             ),
           ),

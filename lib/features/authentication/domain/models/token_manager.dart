@@ -14,8 +14,6 @@ class TokenManager implements TokenStorage {
 
   Token? get token => _token;
 
-  
-
   TokenManager({required this.dio, required this.secureStorage});
 
   @override

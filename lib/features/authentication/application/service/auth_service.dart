@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart' show debugPrint;
 
 class AuthService {
   final AuthRepositoryImpl authRepositoryImpl;
- 
+
   final TokenManager tokenManager;
 
   AuthService({
@@ -18,13 +18,19 @@ class AuthService {
     required this.tokenManager,
   });
 
-
-
+  Future<void> logOut() async {
+    try {
+      await authRepositoryImpl.logOut();
+    } catch (e) {
+      await authRepositoryImpl.logOut();
+      e.log();
+    }
+  }
 
   Future<Either<Failure, Success>> logUserIn(UserModel userModel) async {
     try {
       final request = await authRepositoryImpl.login(userModel);
-     request.fold(
+      request.fold(
         (Failure failure) {
           return Left(failure);
         },

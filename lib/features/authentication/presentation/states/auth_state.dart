@@ -1,5 +1,6 @@
 import 'package:cardly/features/authentication/application/service/auth_service.dart';
 import 'package:cardly/features/authentication/domain/models/user.dart';
+import 'package:cardly/features/authentication/presentation/screen/login_screen.dart';
 import 'package:cardly/main.dart';
 import 'package:cardly/utils/auth_result.dart';
 import 'package:cardly/utils/component/loading/loading_screen.dart';
@@ -58,6 +59,14 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
   final AuthService authService;
 
+  Future<void> logOut(BuildContext context) async {
+    state.copyWithIsResultLoading(true);
+    await authService.logOut();
+    Future.delayed(const Duration(seconds: 2), () {
+      context.replaceNamed("onboard");
+    });
+  }
+
   Future<void> login(UserModel userModel, BuildContext context) async {
     state = state.copyWithIsResultLoading(true);
     final request = await authService.logUserIn(userModel);
@@ -79,6 +88,7 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         );
 
         Future.delayed(const Duration(seconds: 2), () {
+          context.pop();
           Navigator.of(context).pop();
         });
 
@@ -98,10 +108,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         );
 
         Future.delayed(const Duration(seconds: 2), () {
-          Navigator.of(context).pop();
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const DashBoardScreen(),
-          ));
+          context.pop();
+          context.go("/dashboard");
         });
 
         return;
@@ -159,18 +167,6 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
         ).then(
           (_) {},
         );
-
-        // GoRouter.of(context).replace("login");
-        // Navigator.of(context).push(route)
-        // MessageDialogue.authMessage(
-        //     context: context, message: "Please login in to continue with us");
-
-        // Future.delayed(
-        //   const Duration(seconds: 2),
-        //   () {
-        //     Navigator.of(context).pop();
-        //   },
-        // );
 
         return;
       },

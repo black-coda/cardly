@@ -19,10 +19,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   // BaseOptions instance
 
-  AuthRepositoryImpl(
-      {required this.dio, required this.ref, required this.tokenManager}) {
-    dio.interceptors
-        .add(TokenInterceptors(ref: ref, dio: dio, tokenManager: tokenManager));
+  AuthRepositoryImpl({
+    required this.dio,
+    required this.ref,
+    required this.tokenManager,
+  }) {
+    dio.interceptors.add(TokenInterceptors(
+      ref: ref,
+      dio: dio,
+      tokenManager: tokenManager,
+    ));
+  }
+
+  Future<void> logOut() async {
+    try {
+      await tokenManager.destroy();
+    } catch (e) {
+      await tokenManager.destroy();
+    }
   }
 
   Future<void> listAllUser() async {
@@ -30,6 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = await dio.get(ApiKonstant.allUser);
       if (request.statusCode == 200) {
         request.data.toString().log();
+        debugPrint(request.data.toString());
       }
     } on DioException catch (e) {
       e.log();

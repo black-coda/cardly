@@ -3,6 +3,7 @@ import 'package:cardly/config/theme/theme.dart';
 import 'package:cardly/features/authentication/data/repository/auth_repository_impl.dart';
 import 'package:cardly/features/authentication/presentation/screen/login_screen.dart';
 import 'package:cardly/features/authentication/presentation/screen/registration_screen.dart';
+import 'package:cardly/features/onboard/presentation/widgets/onboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,49 +14,9 @@ import 'utils/component/loading/loading_screen.dart';
 void main() async {
   runApp(
     const ProviderScope(
-      child: AppEntry(),
+      child: App(),
     ),
   );
-}
-
-class AppEntry extends StatelessWidget {
-  const AppEntry({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    //  final routes = ref.watch(goRouterProvider);
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeCard.initialThemeData,
-      home: Consumer(
-        builder: (_, ref, child) {
-          //* Installs loading screen whenever state is Loading()
-          // ref.listen<bool>(
-          //   isLoadingProvider,
-          //   (_, isLoading) {
-          //     if (isLoading) {
-          //       LoadingScreen.instance().show(
-          //         context: context,
-          //       );
-          //     } else {
-          //       LoadingScreen.instance().hide();
-          //     }
-          //   },
-          // );
-
-          final route = ref.watch(goRouterConfigProvider);
-          final isLoggedIn = ref.watch(isLoggedInProvider);
-          isLoggedIn.log();
-
-          if (isLoggedIn) {
-            return const DashBoardScreen();
-          } else {
-            return const RegistrationScreen();
-          }
-        },
-      ),
-    );
-  }
 }
 
 class App extends ConsumerWidget {
@@ -63,6 +24,27 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final route = ref.watch(goRouterConfigProvider);
+    ref.watch(isAuthenticatedProvider).when(
+      data: (authenticated) {
+        debugPrint("is it authenticated: $authenticated");
+        if (authenticated) {
+          route.go("/dashboard");
+        } else {
+          route.go("/");
+        }
+      },
+      error: (error, stackTrace) {
+        debugPrint(error.toString());
+        route.goNamed("onboard");
+      },
+      loading: () {
+        // LoadingScreen.instance().show(
+        //   context: context,
+        // );
+        const LoaderScreen();
+      },
+    );
     ref.listen<bool>(
       isLoadingProvider,
       (_, isLoading) {
@@ -75,25 +57,7 @@ class App extends ConsumerWidget {
         }
       },
     );
-    ref.watch(isLoggedInProvider).log();
-    final route = ref.watch(goRouterConfigProvider);
 
-    // ref.watch(isLoggedInProvider).when(
-    //   data: (loggedIn) {
-    //     if (loggedIn) {
-    //       route.goNamed("dashboard");
-    //     } else {
-    //       route.goNamed("login");
-    //     }
-    //   },
-    //   error: (error, stackTrace) {
-    //     error.toString().log();
-    //   },
-    //   loading: () {
-    //     "loading".log();
-    //     return const LoaderScreen();
-    //   },
-    // );
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: ThemeCard.initialThemeData,
@@ -125,11 +89,9 @@ class DashBoardScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ));
+                  await ref.watch(authProvider.notifier).logOut(context);
                 },
-                child: const Text("Login"),
+                child: const Text("Logout"),
               ),
             ],
           );
